@@ -1,9 +1,17 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"example/NO-SQL-Cassandra/api"
+	"flag"
+	"fmt"
+	"log"
 )
 
 func main() {
-	router := gin.Default()
+	listenAddr := flag.String("listenaddr", ":3000", "server")
+	flag.Parse()
+
+	server := api.NewServer(*listenAddr)
+	fmt.Println("server running on port: ", *listenAddr)
+	log.Fatal(server.Start())
 }
