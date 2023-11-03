@@ -14,7 +14,15 @@ func main() {
 
 	store := storage.NewMemoryStorage()
 
-	server := api.NewServer(*listenAddr, store)
+	dbconnection, err := storage.SetupDBConnection()
+	if err != nil {
+		log.Fatalf("Failed to connect to Cassandra db: %V", err)
+	}
+	dbconnection.InitializeSchema()
+	dbconnection.InitializeData()
+
+	database := dbconnection
+	server := api.NewServer(*listenAddr, store, *database)
 	fmt.Println("server running on port", *listenAddr)
 	log.Fatal(server.Start())
 }

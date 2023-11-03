@@ -9,12 +9,14 @@ import (
 type Server struct {
 	listenAddr string
 	store      storage.Storage
+	database   storage.Database
 }
 
-func NewServer(listenAddr string, store storage.Storage) *Server {
+func NewServer(listenAddr string, store storage.Storage, database storage.Database) *Server {
 	return &Server{
 		listenAddr: listenAddr,
 		store:      store,
+		database:   database,
 	}
 }
 
