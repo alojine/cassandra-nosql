@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("Failed to connect to Cassandra db: %V", err)
 	}
 	dbconnection.InitializeSchema()
-	dbconnection.InitializeData()
+	// dbconnection.InitializeData()
 	database := dbconnection
 
 	server := api.NewServer(*listenAddr, *database)
