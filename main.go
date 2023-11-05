@@ -20,7 +20,7 @@ func main() {
 	dbconnection.InitializeData()
 	database := dbconnection
 
-	server := api.NewServer(*listenAddr, store, *database)
+	server := api.NewServer(*listenAddr, *database)
 	fmt.Println("server running on port", *listenAddr)
 	log.Fatal(server.Start())
 }

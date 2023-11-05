@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"example/NO-SQL-Cassandra/storage"
 	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
@@ -13,17 +14,16 @@ type Server struct {
 	database   storage.Database
 }
 
-func NewServer(listenAddr string, store storage.Storage, database storage.Database) *Server {
+func NewServer(listenAddr string, database storage.Database) *Server {
 	return &Server{
 		listenAddr: listenAddr,
-		store:      store,
 		database:   database,
 	}
 }
 
 func (s *Server) Start() error {
 	// http.HandleFunc("/factory", s.handleGetFactoryById)
-	http.HandleFunc("/products/{product_line_id}", handleGetProductsByProductLineId)
+	http.HandleFunc("/products/{product_line_id}", s.handleGetProductsByProductLineId)
 	return http.ListenAndServe(s.listenAddr, nil)
 }
 
@@ -32,13 +32,13 @@ func (s *Server) Start() error {
 // 	json.NewEncoder(w).Encode(factory)
 // }
 
-func (s *Server) handleGetProductsByProductLineId (w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetProductsByProductLineId(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-    id, ok := vars["product_line_id"]
+	id, ok := vars["product_line_id"]
 	if !ok {
 		http.Error(w, "product_line_id not found in request", http.StatusBadRequest)
 		return
 	}
-	products := s.database.handleGetProductsByProductLineId(id)
+	products := s.database.GetAllProductsByProductLineID(id)
 	json.NewEncoder(w).Encode(products)
 }
