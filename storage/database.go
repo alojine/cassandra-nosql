@@ -2,7 +2,7 @@ package storage
 
 import (
 	"log"
-
+	"fmt"
 	"github.com/gocql/gocql"
 )
 
@@ -27,4 +27,17 @@ func SetupDBConnection() (*Database, error) {
 		cluster: cluster,
 		session: session,
 	}, nil
+}
+
+func (db *Database) GetAllProductsByProductLineID(string id) []*types.Product {
+	var products []types.Product
+	var product types.Product
+
+	iter := db.session.Query(`SELECT product_id, product_line_id, name, description, production_date, status FROM products WHERE product_line_id = ?`, id).Iter()
+	for iter.Scan(&product.ProductID, &product.ProductionLineID, &product.Name, &product.ProductionDate, &product.Status) {
+		products = append(products, product)
+		fmt.Println(product)
+	}
+
+	return &products
 }
