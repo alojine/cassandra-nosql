@@ -1,25 +1,19 @@
 package storage
 
 import (
-	"log"
-	"time"
-
 	"github.com/gocql/gocql"
+	"fmt"
 )
 
-var schemaInitialized bool
 var dataInitialized bool
 
 func (db *Database) InitializeSchema() error {
-	if schemaInitialized {
-		log.Println("Schema has beem intialized")
-		return nil
-	}
-
 	statements := []string{
-		"CREATE TABLE IF NOT EXISTS factories (factory_id UUID PRIMARY KEY, name TEXT, location TEXT, capacity INT)",
-		"CREATE TABLE IF NOT EXISTS product_lines (line_id UUID PRIMARY KEY, factory_id UUID, name TEXT, description TEXT)",
-		"CREATE TABLE IF NOT EXISTS products (product UUID PRIMARY KEY, production_line_id UUID, name TEXT, description TEXT, production_date DATE, status TEXT)",
+		"CREATE TABLE IF NOT EXISTS Factories(factory_id UUID, product_line_names SET<TEXT>, name TEXT, capacity INT, PRIMARY KEY(factory_id));",
+		"CREATE TABLE IF NOT EXISTS Product_Lines(product_line_id UUID, product_names SET<TEXT>, name TEXT, PRIMARY KEY(product_line_id));",
+		"CREATE TABLE IF NOT EXISTS Products(product_id UUID, name TEXT, quantity INT, PRIMARY KEY(product_id));",
+		"CREATE TABLE IF NOT EXISTS Products_By_Product_Line (product_line_name TEXT, product_name TEXT, product_id UUID, PRIMARY KEY((product_line_name), product_name));",
+		"CREATE TABLE IF NOT EXISTS Product_Lines_By_Factory (factory_name TEXT, product_line_name TEXT, product_line_id UUID, PRIMARY KEY((factory_name), product_line_name));",
 	}
 
 	for _, statement := range statements {
@@ -28,31 +22,50 @@ func (db *Database) InitializeSchema() error {
 		}
 	}
 
-	schemaInitialized = true
+	fmt.Println("Schema initialization has finished.")
 	return nil
 }
 
 func (db *Database) InitializeData() error {
-	if dataInitialized {
-		log.Println("Data has been initialized.")
-		return nil
-	}
 
-	if err := db.session.Query("INSERT INTO factories (factory_id, name, location, capacity) VALUES (?, ?, ?, ?)",
-		gocql.TimeUUID(), "Factory 1", "Location 1", 1000).Exec(); err != nil {
-		return err
-	}
+	factoryID, err := gocql.ParseUUID("743c227f-3903-4103-8bcb-09f76c38dc08")
+	if err != nil {
+        return err
+    }
+    productLineID, err := gocql.ParseUUID("c59d1ef6-70d2-4abd-9b80-5371b3314a64")
+	if err != nil {
+        return err
+    }
+    productID, err := gocql.ParseUUID("ecc6cce2-2c0d-4567-9bb5-e9cffd52ee64")
+	if err != nil {
+        return err
+    }
 
-	if err := db.session.Query("INSERT INTO product_lines (line_id, factory_id, name, description) VALUES (?, ?, ?, ?)",
-		gocql.TimeUUID(), gocql.TimeUUID(), "Line 1", "Description 1").Exec(); err != nil {
-		return err
-	}
+    if err := db.session.Query("INSERT INTO factories (factory_id, product_line_names, name, capacity) VALUES (?, ?, ?, ?)",
+        factoryID, []string{"Technology"}, "Apple", 1000).Exec(); err != nil {
+        return err
+    }
 
-	if err := db.session.Query("INSERT INTO products (product, production_line_id, name, description, production_date, status) VALUES (?, ?, ?, ?, ?, ?)",
-		gocql.TimeUUID(), gocql.TimeUUID(), "Product 1", "Product Description 1", time.Now(), "Available").Exec(); err != nil {
-		return err
-	}
+    if err := db.session.Query("INSERT INTO product_lines (product_line_id, product_names, name) VALUES (?, ?, ?)",
+        productLineID, []string{"IphoneX"}, "Technology").Exec(); err != nil {
+        return err
+    }
 
-	dataInitialized = true
-	return nil
+    if err := db.session.Query("INSERT INTO products (product_id, name, quantity) VALUES (?, ?, ?)",
+        productID, "IphoneX", 500).Exec(); err != nil {
+        return err
+    }
+
+    if err := db.session.Query("INSERT INTO products_by_product_line (product_line_name, product_name, product_id) VALUES (?, ?, ?)",
+        "Technology", "IphoneX", productID).Exec(); err != nil {
+        return err
+    }
+
+    if err := db.session.Query("INSERT INTO product_lines_by_factory (factory_name, product_line_name, product_line_id) VALUES (?, ?, ?)",
+        "Apple", "Technology", productLineID).Exec(); err != nil {
+        return err
+    }
+
+	fmt.Println("Data initialization has finished.")
+    return nil
 }

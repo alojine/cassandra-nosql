@@ -1,8 +1,7 @@
 package types
 
-type ProductionLine struct {
-	LineID      string `json:"line_id"`
-	FactoryID   string `json:"factory_id"`
+type ProductLine struct {
+	ProductLineID      int `json:"product_line_id"`
+	ProductNames []string `json:"product_names"`
 	Name        string `json:"name"`
-	Description string `json:"description"`
 }

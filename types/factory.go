@@ -1,8 +1,8 @@
 package types
 
 type Factory struct {
-	FactoryID string `json:"factory_id"`
+	FactoryID int `json:"factory_id"`
+	ProductLines []string `json:"product_line_names"`
 	Name      string `json:"name"`
-	Location  string `json:"location"`
 	Capacity  int    `json:"capacity"`
 }
