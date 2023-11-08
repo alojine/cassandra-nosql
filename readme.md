@@ -1,1 +1,1 @@
-![uml database schema](UML_FACTORY.png)
+![uml database schema](FACTORY_DB.png)
