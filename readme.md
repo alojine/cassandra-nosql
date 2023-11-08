@@ -1,0 +1,1 @@
+![uml database schema](UML_FACTORY.png)

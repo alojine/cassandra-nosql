@@ -28,5 +28,3 @@ func SetupDBConnection() (*Database, error) {
 		session: session,
 	}, nil
 }
-
-
