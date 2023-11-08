@@ -26,3 +26,12 @@ func (s *Server) handleGetProductsByProductLineName(w http.ResponseWriter, r *ht
 	products := s.database.GetAllProductsByProductLineName(productLineName)
 	json.NewEncoder(w).Encode(products)
 }
+
+func (s *Server) handleInsertProduct(w http.ResponseWriter, r *http.Request) {
+	productID := r.URL.Query().Get("product_id")
+	name := r.URL.Query().Get("product_name")
+	quantity := r.URL.Query().Get("quantity")
+
+	isInserted := s.database.InsertProduct(productID, name, quantity);
+	json.NewEncoder(w).Encode(isInserted)
+}

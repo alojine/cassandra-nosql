@@ -23,6 +23,7 @@ func (s *Server) Start() error {
 	r := mux.NewRouter()
 	http.HandleFunc("/products", s.handleGetProductsByProductLineName)
 	http.HandleFunc("/product-lines", s.handleGetProductLinesByFactoryName)
+	http.HandleFunc("/products/insert", s.handleInsertProduct)
 	http.Handle("/", r)
 
 	return http.ListenAndServe(s.listenAddr, nil)

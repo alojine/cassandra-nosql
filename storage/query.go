@@ -2,6 +2,7 @@ package storage
 
 import (
 	"example/NO-SQL-Cassandra/types"
+	"fmt"
 )
 
 func (db *Database) GetAllProductsByProductLineName(ProductLineName string) []*types.ProductsByProductLine {
@@ -36,4 +37,31 @@ func (db *Database) GetAllProductLinesByFactoryName(FactoryName string) []*types
 	}
 
 	return productLines
+}
+
+func (db *Database) InsertProduct (ProductID string, Name string, Quantity string) bool {
+	query := db.session.Query(
+		`INSERT INTO Products (product_id, name, quantity) VALUES (?, ?, ?) IF NOT EXISTS;`,
+		ProductID, Name, Quantity,
+	)
+
+	var applied bool
+
+	if err := query.Scan(&applied); err != nil {
+		fmt.Println("Product inserted successfully")
+	} else {
+		fmt.Println("Product with the same product_id already exists.")
+		updateQuery := db.session.Query(
+            "UPDATE Products SET quantity = ? IF name = ?;",
+            Quantity, Name,
+        )
+        if err := updateQuery.Exec(); err != nil {
+            fmt.Println("Product id matches, but product name does not match.")
+			return false
+        } 
+
+		return true
+	}
+
+	return true
 }
